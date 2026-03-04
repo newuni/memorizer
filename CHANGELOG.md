@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3] - 2026-03-04
+### Added
+- Phase 2 documentation: API examples, architecture diagrams, OpenAPI usage, production deploy guide.
+- Improved docs index and top-level README links for faster onboarding.
+
 ## [0.2.2] - 2026-03-04
 ### Added
 - Comprehensive `docs/` structure (quickstart, architecture, API reference, operations, security, troubleshooting).
