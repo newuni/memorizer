@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4] - 2026-03-04
+### Added
+- Phase 3 adoption documentation: 10-minute onboarding, role-based recipes, migration guide, and adoption checklist.
+- Improved doc navigation in docs index and top-level README.
+
 ## [0.2.3] - 2026-03-04
 ### Added
 - Phase 2 documentation: API examples, architecture diagrams, OpenAPI usage, production deploy guide.
