@@ -1,5 +1,9 @@
 # memorizer
 
+[![CI](https://github.com/newuni/memorizer/actions/workflows/ci.yml/badge.svg)](https://github.com/newuni/memorizer/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/newuni/memorizer)](https://github.com/newuni/memorizer/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 `memorizer` is a private-first, OSS-friendly memory service for AI agents.
 
 ## Tech stack
@@ -20,9 +24,11 @@
 - API key management (list/create/revoke)
 - Health check (`GET /health`)
 
-## Quick start
+## Public quickstart
 
 ```bash
+git clone https://github.com/newuni/memorizer.git
+cd memorizer
 cp .env.example .env
 docker compose up --build
 ```
@@ -30,8 +36,12 @@ docker compose up --build
 API: `http://localhost:8000`  
 Docs: `http://localhost:8000/docs`
 
-## Releases
-We publish GitHub releases for relevant milestones. See `RELEASING.md`.
+## Project hygiene
+- Releases: `RELEASING.md`
+- Changelog: `CHANGELOG.md`
+- Contributing: `CONTRIBUTING.md`
+- Security policy: `SECURITY.md`
+- License: `LICENSE`
 
 ## Agent skill + CLI (no MCP)
 This repo includes a dedicated skill and CLI so agents can use memorizer directly over HTTP.
