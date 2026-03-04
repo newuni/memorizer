@@ -107,3 +107,65 @@ Then poll job status:
 ```bash
 curl -H "X-API-Key: dev-secret-change-me" http://localhost:8000/api/v1/jobs/<job_id>
 ```
+
+## How an agent uses memorizer
+A typical agent flow is:
+1. Save relevant facts/events as memories.
+2. Before answering a user, fetch context from memorizer.
+3. Inject retrieved context into the model prompt.
+
+### Minimal Python example (agent-side)
+```python
+import requests
+
+MEMORIZER_URL = "http://localhost:8000"
+API_KEY = "dev-secret-change-me"
+HEADERS = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
+
+
+def remember(text: str, namespace: str = "default", meta: dict | None = None):
+    payload = {
+        "namespace": namespace,
+        "content": text,
+        "meta": meta or {"source": "agent"},
+    }
+    requests.post(f"{MEMORIZER_URL}/api/v1/memories", headers=HEADERS, json=payload, timeout=10).raise_for_status()
+
+
+def build_context(user_prompt: str, namespace: str = "default", top_k: int = 5) -> str:
+    payload = {"namespace": namespace, "prompt": user_prompt, "top_k": top_k}
+    r = requests.post(f"{MEMORIZER_URL}/api/v1/context", headers=HEADERS, json=payload, timeout=10)
+    r.raise_for_status()
+    return r.json()["context"]
+
+
+# 1) Store memory after an interaction
+remember("User prefers concise answers in Spanish", meta={"type": "preference"})
+
+# 2) Retrieve context before generating a reply
+user_prompt = "¿Qué me recomiendas para desplegar esto?"
+ctx = build_context(user_prompt)
+
+# 3) Inject context into your LLM prompt
+final_prompt = f"""
+Use this long-term context if relevant:
+{ctx}
+
+User request:
+{user_prompt}
+"""
+print(final_prompt)
+```
+
+### Same idea with curl
+```bash
+# Save memory
+curl -X POST -H "X-API-Key: dev-secret-change-me" -H "Content-Type: application/json" \
+  -d '{"namespace":"default","content":"User likes Docker-first deploys","meta":{"source":"agent"}}' \
+  http://localhost:8000/api/v1/memories
+
+# Build context for current user prompt
+curl -X POST -H "X-API-Key: dev-secret-change-me" -H "Content-Type: application/json" \
+  -d '{"namespace":"default","prompt":"How should I deploy this?","top_k":5}' \
+  http://localhost:8000/api/v1/context
+```
