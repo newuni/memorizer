@@ -30,6 +30,9 @@ docker compose up --build
 API: `http://localhost:8000`  
 Docs: `http://localhost:8000/docs`
 
+## Releases
+We publish GitHub releases for relevant milestones. See `RELEASING.md`.
+
 ## Agent skill + CLI (no MCP)
 This repo includes a dedicated skill and CLI so agents can use memorizer directly over HTTP.
 
