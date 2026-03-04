@@ -1,0 +1,39 @@
+# memorizer: concise LLM guide
+
+## What memorizer is
+memorizer is a memory API for AI agents, with tenant isolation, semantic/hybrid search, reranking, async ingestion, and context/profile composition endpoints.
+
+## Core flow
+1. Write memory/documents.
+2. Retrieve with search/context/profile.
+3. Inject context into LLM prompt.
+4. Persist new durable facts.
+
+## Key endpoints
+- POST /api/v1/memories
+- POST /api/v1/memories/batch
+- POST /api/v1/memories/batch/async
+- GET /api/v1/memories/search
+- POST /api/v1/context
+- GET /api/v1/profile
+- POST /api/v1/documents
+- GET /api/v1/documents
+- POST /api/v1/connectors
+- POST /api/v1/connectors/{id}/sync
+
+## Retrieval controls
+- search_mode: hybrid to combine memories + chunks
+- threshold: filter weak matches
+- filters: metadata constraints (AND/OR, leaf operators)
+- rerank: optional precision boost
+- memory_weight/chunk_weight: source balancing
+
+## Auth
+Use X-API-Key on every call. Tenant derives from key.
+
+## Operational notes
+- API + Worker + DB + Redis compose stack
+- Run migrations with Alembic
+- Use release/version docs at repo root
+
+For canonical details, read docs/README.md and docs/api-reference.md.

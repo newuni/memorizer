@@ -1,0 +1,17 @@
+# memorizer docs index for LLMs
+
+- /docs/README.md
+- /docs/quickstart.md
+- /docs/architecture.md
+- /docs/api-reference.md
+- /docs/operations.md
+- /docs/security.md
+- /docs/troubleshooting.md
+- /docs/concepts/memory-vs-rag.md
+- /docs/concepts/hybrid-search.md
+- /docs/concepts/user-profiles.md
+- /docs/cookbook/coding-agent.md
+- /docs/cookbook/support-bot.md
+- /README.md
+- /BLUEPRINT.md
+- /CHANGELOG.md

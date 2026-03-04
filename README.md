@@ -39,6 +39,13 @@ docker compose up --build
 API: `http://localhost:8000`  
 Docs: `http://localhost:8000/docs`
 
+## Documentation
+- Main docs index: `docs/README.md`
+- API reference: `docs/api-reference.md`
+- Architecture: `docs/architecture.md`
+- Concepts + cookbooks: `docs/concepts/*`, `docs/cookbook/*`
+- LLM-friendly docs: `docs/llms.txt`, `docs/llms-full.txt`
+
 ## Project hygiene
 - Releases: `RELEASING.md`
 - Changelog: `CHANGELOG.md`
