@@ -30,6 +30,30 @@ docker compose up --build
 API: `http://localhost:8000`  
 Docs: `http://localhost:8000/docs`
 
+## Agent skill + CLI (no MCP)
+This repo includes a dedicated skill and CLI so agents can use memorizer directly over HTTP.
+
+- Skill: `skills/memorizer-agent/SKILL.md`
+- CLI: `scripts/memorizer`
+
+Quick usage:
+
+```bash
+# optional env vars
+export MEMORIZER_URL=http://localhost:8000
+export MEMORIZER_API_KEY=dev-secret-change-me
+
+# save memory
+scripts/memorizer add "User prefers concise Spanish replies" --meta '{"type":"preference"}'
+
+# retrieve context for current prompt
+scripts/memorizer context "¿Cómo lo desplegamos?" --top-k 5
+
+# create/revoke api keys
+scripts/memorizer keys-create agent-prod
+scripts/memorizer keys-revoke <key_id>
+```
+
 ## Embeddings providers
 By default, memorizer uses a **local CPU model**:
 
