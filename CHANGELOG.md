@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2026-03-04
+### Added
+- Hardening pass for search filters (`string_contains`, `numeric`, `array_contains`, `negate`).
+- Weighted hybrid ranking controls (`memory_weight`, `chunk_weight`) in search/context.
+- Extra test coverage for advanced filter operators and weighted ranking behavior.
+
 ## [0.2.0] - 2026-03-04
 ### Added
 - Advanced search API capabilities: `search_mode`, `threshold`, metadata filters, rerank toggle.
