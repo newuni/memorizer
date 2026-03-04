@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 
@@ -5,16 +7,14 @@ from app.api.admin_routes import admin_router
 from app.api.routes import router
 from app.core.config import settings
 from app.db.session import SessionLocal
-from app.services.api_key_service import bootstrap_api_key
 from app.services.admin_service import bootstrap_admin_token, ensure_namespace, ensure_tenant
+from app.services.api_key_service import bootstrap_api_key
 from app.services.ops_service import get_metrics_text
 
-app = FastAPI(title="memorizer", version="0.5.0")
 
-
-@app.on_event("startup")
-def on_startup() -> None:
-    if settings.bootstrap_api_key:
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    if settings.app_env != "test" and settings.bootstrap_api_key:
         db = SessionLocal()
         try:
             ensure_tenant(db, tenant_id=settings.bootstrap_tenant_id, name=settings.bootstrap_tenant_id)
@@ -35,6 +35,10 @@ def on_startup() -> None:
                 )
         finally:
             db.close()
+    yield
+
+
+app = FastAPI(title="memorizer", version="0.5.0", lifespan=lifespan)
 
 
 @app.get("/health")

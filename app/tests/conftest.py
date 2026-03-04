@@ -6,10 +6,10 @@ from fastapi.testclient import TestClient
 from app.api import admin_routes, routes
 from app.api.admin_deps import AdminAuthContext, get_admin_auth_context
 from app.api.deps import AuthContext, get_auth_context
+from app.core.config import settings
 from app.main import app
 
-# Disable startup hooks in unit tests to avoid external DB/bootstrap side effects.
-app.router.on_startup.clear()
+settings.app_env = "test"
 
 
 @pytest.fixture(autouse=True)
