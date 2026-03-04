@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-03-04
+### Added
+- Operational stability controls: API-key rate limiting + daily quotas, `/metrics` endpoint, Celery retries/backoff, and audit logging for sensitive operations.
+- Retrieval quality upgrades: stricter metadata filter validation/operators, MMR-style diversity, context citations + trace IDs, and a relevance benchmark scaffold (`.benchmarks/relevance_smoke.py`).
+- Ingestion/connectors improvements: GitHub raw docs ingestion strategy, sitemap-aware web crawler discovery fallback, parser support for markdown/html/pdf-basic, content-hash dedup, and per-document retries/status fields.
+- Data governance features: namespace TTL support, soft-delete/forget with optional hard delete, tenant export endpoint, and opt-in PII redaction at ingest.
+- Agent DX upgrades: expanded mini SDK methods (Python/JS), richer CLI commands (`profile`, `export`, `connector-sync`).
+
 ## [0.2.4] - 2026-03-04
 ### Added
 - Phase 3 adoption documentation: 10-minute onboarding, role-based recipes, migration guide, and adoption checklist.

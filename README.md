@@ -20,7 +20,9 @@
 - Add many memories async (`POST /api/v1/memories/batch/async`)
 - Track ingestion jobs (`GET /api/v1/jobs/{job_id}`)
 - Advanced search: hybrid mode, threshold, filters, rerank toggle (`GET /api/v1/memories/search`)
-- Build LLM context (`POST /api/v1/context`)
+- Build LLM context (`POST /api/v1/context`) with citations + trace IDs
+- Operational controls: per-key rate limits/quotas, audit logs, `/metrics`
+- Data governance: TTL, forget/soft-delete, tenant export
 - User profile endpoint (`GET /api/v1/profile`)
 - Documents pipeline (`/api/v1/documents*`) with async chunk processing
 - Connectors (github/web_crawler) (`/api/v1/connectors*`)

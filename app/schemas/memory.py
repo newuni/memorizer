@@ -39,8 +39,12 @@ class ContextRequest(BaseModel):
     rerank: bool = True
     memory_weight: float = 1.0
     chunk_weight: float = 0.9
+    use_mmr: bool = True
+    include_citations: bool = True
 
 
 class ContextResponse(BaseModel):
     context: str
     items: list[SearchResult]
+    citations: list[dict[str, Any]] = Field(default_factory=list)
+    trace_id: str | None = None

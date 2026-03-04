@@ -16,4 +16,6 @@ class ApiKey(Base):
     name: Mapped[str] = mapped_column(String(120))
     key_hash: Mapped[str] = mapped_column(Text, unique=True, index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    rate_limit_per_minute: Mapped[int] = mapped_column(default=120)
+    daily_quota: Mapped[int] = mapped_column(default=5000)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

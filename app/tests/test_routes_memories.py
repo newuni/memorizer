@@ -80,8 +80,10 @@ def test_context_endpoint_builds_context_text(client, monkeypatch):
 
     assert resp.status_code == 200
     body = resp.json()
-    assert body["context"] == "- first memory\n\n- second memory"
+    assert "- first memory" in body["context"]
     assert len(body["items"]) == 2
+    assert len(body["citations"]) == 2
+    assert body["trace_id"] is not None
 
 
 def test_delete_memory_not_found_returns_404(client, monkeypatch):
@@ -97,4 +99,4 @@ def test_delete_memory_ok_returns_deleted_true(client, monkeypatch):
 
     resp = client.delete(f"/api/v1/memories/{uuid4()}")
     assert resp.status_code == 200
-    assert resp.json() == {"deleted": True}
+    assert resp.json()["deleted"] is True

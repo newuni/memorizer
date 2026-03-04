@@ -8,6 +8,7 @@ from app.models.api_key import ApiKey
 from app.models.connector import Connector
 from app.models.document import Document, DocumentChunk
 from app.models.ingestion_job import IngestionJob
+from app.models.audit_log import AuditLog
 from app.core.config import settings
 
 config = context.config

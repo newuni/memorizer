@@ -21,6 +21,14 @@ class Settings(BaseSettings):
     redis_url: str = "redis://redis:6379/0"
     app_env: str = "dev"
 
+    # operational controls
+    rate_limit_per_minute: int = 120
+    default_daily_quota: int = 5000
+
+    # governance
+    default_namespace_ttl_days: int = 0
+    pii_redaction_enabled: bool = False
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
