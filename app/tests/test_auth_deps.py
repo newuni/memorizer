@@ -47,7 +47,14 @@ def test_get_auth_context_invalid_key_raises_401():
 
 
 def test_get_auth_context_returns_tenant_and_key_id():
-    key_obj = SimpleNamespace(id="kid-1", tenant_id="tenant-42", key_hash=hash_api_key("secret"), is_active=True)
+    key_obj = SimpleNamespace(
+        id="kid-1",
+        tenant_id="tenant-42",
+        key_hash=hash_api_key("secret"),
+        is_active=True,
+        rate_limit_per_minute=None,
+        daily_quota=None,
+    )
     db = _FakeDB(key_obj)
 
     ctx = get_auth_context(db=db, x_api_key="secret")

@@ -12,6 +12,7 @@ def test_add_memory_returns_created_item(client, monkeypatch):
         assert payload.content == "hello"
         return SimpleNamespace(
             id=mem_id,
+            tenant_id=tenant_id,
             namespace=payload.namespace,
             content=payload.content,
             meta=payload.meta,
@@ -33,8 +34,8 @@ def test_add_memory_returns_created_item(client, monkeypatch):
 
 def test_search_memories_returns_ranked_rows(client, monkeypatch):
     fake_rows = [
-        {"id": str(uuid4()), "content": "alpha", "meta": {}, "score": 0.8, "rerank_score": 0.6},
-        {"id": str(uuid4()), "content": "beta", "meta": {"tag": "x"}, "score": 0.7, "rerank_score": 0.55},
+        {"id": str(uuid4()), "content": "alpha", "meta": {}, "score": 0.8, "source": "memory", "rerank_score": 0.6},
+        {"id": str(uuid4()), "content": "beta", "meta": {"tag": "x"}, "score": 0.7, "source": "memory", "rerank_score": 0.55},
     ]
 
     def _fake_search(
@@ -49,6 +50,7 @@ def test_search_memories_returns_ranked_rows(client, monkeypatch):
         filters=None,
         memory_weight=1.0,
         chunk_weight=0.9,
+        use_mmr=True,
     ):
         assert tenant_id == "t1"
         assert namespace == "default"
@@ -87,7 +89,7 @@ def test_context_endpoint_builds_context_text(client, monkeypatch):
 
 
 def test_delete_memory_not_found_returns_404(client, monkeypatch):
-    monkeypatch.setattr(routes, "delete_memory", lambda db, tenant_id, memory_id: False)
+    monkeypatch.setattr(routes, "delete_memory", lambda db, tenant_id, memory_id, hard=False: False)
 
     resp = client.delete(f"/api/v1/memories/{uuid4()}")
     assert resp.status_code == 404
@@ -95,7 +97,7 @@ def test_delete_memory_not_found_returns_404(client, monkeypatch):
 
 
 def test_delete_memory_ok_returns_deleted_true(client, monkeypatch):
-    monkeypatch.setattr(routes, "delete_memory", lambda db, tenant_id, memory_id: True)
+    monkeypatch.setattr(routes, "delete_memory", lambda db, tenant_id, memory_id, hard=False: True)
 
     resp = client.delete(f"/api/v1/memories/{uuid4()}")
     assert resp.status_code == 200

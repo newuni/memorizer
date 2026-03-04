@@ -1,7 +1,6 @@
 from uuid import uuid4
 
 from app.api import routes
-from app.main import app
 from app.services import memory_service
 
 

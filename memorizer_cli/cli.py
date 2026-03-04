@@ -46,7 +46,11 @@ def cmd_health(args):
 
 
 def cmd_add(args):
-    data = {"namespace": args.namespace, "content": args.content, "meta": json.loads(args.meta) if args.meta else {}}
+    data = {
+        "namespace": args.namespace,
+        "content": args.content,
+        "meta": json.loads(args.meta) if args.meta else {},
+    }
     status, payload = _request("POST", "/api/v1/memories", args.api_key, data, args.url)
     _print({"status_code": status, "data": payload})
 
@@ -58,7 +62,12 @@ def cmd_search(args):
 
 
 def cmd_context(args):
-    data = {"namespace": args.namespace, "prompt": args.prompt, "top_k": args.top_k, "include_citations": True}
+    data = {
+        "namespace": args.namespace,
+        "prompt": args.prompt,
+        "top_k": args.top_k,
+        "include_citations": True,
+    }
     status, payload = _request("POST", "/api/v1/context", args.api_key, data, args.url)
     _print({"status_code": status, "data": payload})
 
@@ -87,13 +96,40 @@ def build_parser():
     p.add_argument("--api-key", default=DEFAULT_API_KEY)
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    s = sub.add_parser("health"); s.set_defaults(func=cmd_health)
-    s = sub.add_parser("add"); s.add_argument("content"); s.add_argument("--namespace", default="default"); s.add_argument("--meta", default="{}"); s.set_defaults(func=cmd_add)
-    s = sub.add_parser("search"); s.add_argument("query"); s.add_argument("--namespace", default="default"); s.add_argument("--top-k", type=int, default=5); s.set_defaults(func=cmd_search)
-    s = sub.add_parser("context"); s.add_argument("prompt"); s.add_argument("--namespace", default="default"); s.add_argument("--top-k", type=int, default=5); s.set_defaults(func=cmd_context)
-    s = sub.add_parser("profile"); s.add_argument("--namespace", default="default"); s.add_argument("--q", default=None); s.set_defaults(func=cmd_profile)
-    s = sub.add_parser("export"); s.add_argument("--namespace", default="default"); s.set_defaults(func=cmd_export)
-    s = sub.add_parser("connector-sync"); s.add_argument("connector_id"); s.set_defaults(func=cmd_connector_sync)
+    s = sub.add_parser("health")
+    s.set_defaults(func=cmd_health)
+
+    s = sub.add_parser("add")
+    s.add_argument("content")
+    s.add_argument("--namespace", default="default")
+    s.add_argument("--meta", default="{}")
+    s.set_defaults(func=cmd_add)
+
+    s = sub.add_parser("search")
+    s.add_argument("query")
+    s.add_argument("--namespace", default="default")
+    s.add_argument("--top-k", type=int, default=5)
+    s.set_defaults(func=cmd_search)
+
+    s = sub.add_parser("context")
+    s.add_argument("prompt")
+    s.add_argument("--namespace", default="default")
+    s.add_argument("--top-k", type=int, default=5)
+    s.set_defaults(func=cmd_context)
+
+    s = sub.add_parser("profile")
+    s.add_argument("--namespace", default="default")
+    s.add_argument("--q", default=None)
+    s.set_defaults(func=cmd_profile)
+
+    s = sub.add_parser("export")
+    s.add_argument("--namespace", default="default")
+    s.set_defaults(func=cmd_export)
+
+    s = sub.add_parser("connector-sync")
+    s.add_argument("connector_id")
+    s.set_defaults(func=cmd_connector_sync)
+
     return p
 
 

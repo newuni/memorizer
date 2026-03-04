@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 
 from app.core.config import settings
 
-_METRICS = defaultdict(int)
+_METRICS: dict[str, int] = defaultdict(int)
 _RATE_BUCKETS: dict[str, deque[float]] = defaultdict(deque)
 _DAILY_QUOTA: dict[tuple[str, str], tuple[str, int]] = {}
 

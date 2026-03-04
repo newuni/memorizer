@@ -44,7 +44,7 @@ def test_documents_flow_routes(client, monkeypatch):
     monkeypatch.setattr(routes, "create_document", lambda db, tenant_id, payload: fake_doc)
     monkeypatch.setattr(routes, "list_documents", lambda db, tenant_id, namespace: [fake_doc])
     monkeypatch.setattr(routes, "get_document", lambda db, tenant_id, doc_id: fake_doc)
-    monkeypatch.setattr(routes, "delete_document", lambda db, tenant_id, doc_id: True)
+    monkeypatch.setattr(routes, "delete_document", lambda db, tenant_id, doc_id, hard=False: True)
 
     class _DelayStub:
         @staticmethod

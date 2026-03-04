@@ -3,9 +3,20 @@ from collections.abc import Generator
 import pytest
 from fastapi.testclient import TestClient
 
+from app.api import admin_routes, routes
 from app.api.admin_deps import AdminAuthContext, get_admin_auth_context
 from app.api.deps import AuthContext, get_auth_context
 from app.main import app
+
+# Disable startup hooks in unit tests to avoid external DB/bootstrap side effects.
+app.router.on_startup.clear()
+
+
+@pytest.fixture(autouse=True)
+def _noop_audit(monkeypatch):
+    monkeypatch.setattr(routes, "log_audit", lambda *args, **kwargs: None)
+    monkeypatch.setattr(admin_routes, "log_audit", lambda *args, **kwargs: None)
+    monkeypatch.setattr(admin_routes, "record_event", lambda *args, **kwargs: None)
 
 
 @pytest.fixture

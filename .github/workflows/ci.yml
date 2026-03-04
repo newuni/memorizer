@@ -26,6 +26,8 @@ jobs:
         env:
           DATABASE_URL: "sqlite+pysqlite:///:memory:"
           BOOTSTRAP_API_KEY: ""
+          APP_ENV: "test"
+          PYTHONPATH: "."
         run: pytest -q
 
   package-cli:

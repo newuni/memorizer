@@ -119,6 +119,8 @@ def _eval_leaf(meta: dict, flt: dict) -> bool:
     if ftype == "numeric":
         op = flt.get("numericOperator", "==")
         fn = NUMERIC_OPS.get(op, NUMERIC_OPS["=="])
+        if actual is None or value is None:
+            return False
         try:
             return fn(float(actual), float(value))
         except Exception:
