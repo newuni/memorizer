@@ -9,7 +9,9 @@
 - Docker Compose
 
 ## MVP features
-- Add a memory (`POST /api/v1/memories`)
+- API key auth + tenant isolation (`X-API-Key`)
+- Add one memory (`POST /api/v1/memories`)
+- Add many memories (`POST /api/v1/memories/batch`)
 - Search memories semantically (`GET /api/v1/memories/search`)
 - Build LLM context (`POST /api/v1/context`)
 - Delete memory (`DELETE /api/v1/memories/{id}`)
@@ -44,3 +46,26 @@ GEMINI_EMBED_MODEL=models/text-embedding-004
 ```
 
 > Keep `EMBEDDING_DIM=384` unless you also migrate the DB vector column.
+
+### API key bootstrap (dev)
+On startup, the API creates/ensures one bootstrap key from env:
+
+```env
+BOOTSTRAP_TENANT_ID=default
+BOOTSTRAP_API_KEY=dev-secret-change-me
+```
+
+Use it in requests:
+
+```bash
+curl -H "X-API-Key: dev-secret-change-me" \
+  -H "Content-Type: application/json" \
+  -d '{"namespace":"default","content":"Unai likes OSS tools","meta":{"source":"chat"}}' \
+  http://localhost:8000/api/v1/memories
+```
+
+Create extra keys manually:
+
+```bash
+docker compose exec api python scripts/create_api_key.py
+```

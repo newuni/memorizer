@@ -28,19 +28,21 @@ Build a memory API for agents with multi-tenant isolation, semantic retrieval, a
 - Filter by tenant + namespace
 - Order by similarity and recency tie-break
 
-## 5. API contract (MVP)
+## 5. API contract (v0.2)
 - `POST /api/v1/memories`
+- `POST /api/v1/memories/batch`
 - `GET /api/v1/memories/search`
 - `POST /api/v1/context`
 - `DELETE /api/v1/memories/{memory_id}`
 - `GET /health`
 
 ## 6. Security
-- Tenant isolation enforced at query layer (later RLS)
-- API key auth planned in v0.2
-- Audit logging planned in v0.2
+- Tenant isolation enforced at query layer (v0.2)
+- API key auth via `X-API-Key` (v0.2)
+- Bootstrap dev key from env for local onboarding
+- Audit logging planned in v0.3
 
 ## 7. Roadmap
 - v0.1: core CRUD + semantic search + context endpoint
-- v0.2: API keys, batch ingest, rerank, async workers
-- v0.3: connectors, fact extraction, memory compaction
+- v0.2: API keys + batch ingest + pluggable embeddings (local/gemini)
+- v0.3: rerank, async workers, connectors, memory compaction

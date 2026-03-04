@@ -6,10 +6,10 @@ from app.schemas.memory import MemoryCreate
 from app.services.embedder import embedder
 
 
-def create_memory(db: Session, payload: MemoryCreate) -> Memory:
+def create_memory(db: Session, tenant_id: str, payload: MemoryCreate) -> Memory:
     vec = embedder.embed(payload.content)
     item = Memory(
-        tenant_id=payload.tenant_id,
+        tenant_id=tenant_id,
         namespace=payload.namespace,
         content=payload.content,
         meta=payload.meta,
@@ -21,8 +21,28 @@ def create_memory(db: Session, payload: MemoryCreate) -> Memory:
     return item
 
 
-def delete_memory(db: Session, memory_id: str) -> bool:
-    item = db.get(Memory, memory_id)
+def create_memories_batch(db: Session, tenant_id: str, payloads: list[MemoryCreate]) -> list[Memory]:
+    items: list[Memory] = []
+    for payload in payloads:
+        vec = embedder.embed(payload.content)
+        items.append(
+            Memory(
+                tenant_id=tenant_id,
+                namespace=payload.namespace,
+                content=payload.content,
+                meta=payload.meta,
+                embedding=vec,
+            )
+        )
+    db.add_all(items)
+    db.commit()
+    for item in items:
+        db.refresh(item)
+    return items
+
+
+def delete_memory(db: Session, tenant_id: str, memory_id: str) -> bool:
+    item = db.query(Memory).filter(Memory.id == memory_id, Memory.tenant_id == tenant_id).first()
     if not item:
         return False
     db.delete(item)

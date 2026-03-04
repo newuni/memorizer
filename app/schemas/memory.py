@@ -4,10 +4,13 @@ from pydantic import BaseModel, Field
 
 
 class MemoryCreate(BaseModel):
-    tenant_id: str = Field(..., min_length=1, max_length=100)
     namespace: str = Field(default="default", min_length=1, max_length=100)
     content: str = Field(..., min_length=1)
     meta: dict[str, Any] = Field(default_factory=dict)
+
+
+class MemoryBatchCreate(BaseModel):
+    items: list[MemoryCreate] = Field(default_factory=list, min_length=1, max_length=200)
 
 
 class MemoryOut(BaseModel):
@@ -26,7 +29,6 @@ class SearchResult(BaseModel):
 
 
 class ContextRequest(BaseModel):
-    tenant_id: str
     namespace: str = "default"
     prompt: str
     top_k: int = 5
