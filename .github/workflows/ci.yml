@@ -24,7 +24,7 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL: sqlite+pysqlite:///:memory:
+          DATABASE_URL: "sqlite+pysqlite:///:memory:"
           BOOTSTRAP_API_KEY: ""
         run: pytest -q
 
