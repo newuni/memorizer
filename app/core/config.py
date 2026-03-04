@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     rerank_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
     rerank_candidate_pool: int = 25
 
+    hybrid_memory_weight: float = 1.0
+    hybrid_chunk_weight: float = 0.9
+
     redis_url: str = "redis://redis:6379/0"
     app_env: str = "dev"
 

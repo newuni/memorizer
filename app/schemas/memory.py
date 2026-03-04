@@ -37,6 +37,8 @@ class ContextRequest(BaseModel):
     threshold: float = 0.0
     search_mode: str = "hybrid"
     rerank: bool = True
+    memory_weight: float = 1.0
+    chunk_weight: float = 0.9
 
 
 class ContextResponse(BaseModel):

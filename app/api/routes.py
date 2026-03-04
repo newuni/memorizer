@@ -87,6 +87,8 @@ def search(
     search_mode: str = "hybrid",
     rerank: bool = True,
     filters: str | None = None,
+    memory_weight: float = 1.0,
+    chunk_weight: float = 0.9,
     db: Session = Depends(get_db),
     auth: AuthContext = Depends(get_auth_context),
 ):
@@ -101,6 +103,8 @@ def search(
         search_mode=search_mode,
         rerank_enabled=rerank,
         filters=parsed_filters,
+        memory_weight=memory_weight,
+        chunk_weight=chunk_weight,
     )
     return [SearchResult(**r) for r in rows]
 
@@ -120,6 +124,8 @@ def context(
         threshold=payload.threshold,
         search_mode=payload.search_mode,
         rerank_enabled=payload.rerank,
+        memory_weight=payload.memory_weight,
+        chunk_weight=payload.chunk_weight,
     )
     items = [SearchResult(**r) for r in rows]
     context_text = "\n\n".join([f"- {x.content}" for x in items])

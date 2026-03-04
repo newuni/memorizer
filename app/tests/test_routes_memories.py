@@ -37,7 +37,19 @@ def test_search_memories_returns_ranked_rows(client, monkeypatch):
         {"id": str(uuid4()), "content": "beta", "meta": {"tag": "x"}, "score": 0.7, "rerank_score": 0.55},
     ]
 
-    def _fake_search(db, tenant_id, namespace, query, top_k, threshold, search_mode, rerank_enabled, filters=None):
+    def _fake_search(
+        db,
+        tenant_id,
+        namespace,
+        query,
+        top_k,
+        threshold,
+        search_mode,
+        rerank_enabled,
+        filters=None,
+        memory_weight=1.0,
+        chunk_weight=0.9,
+    ):
         assert tenant_id == "t1"
         assert namespace == "default"
         assert query == "what"
@@ -45,6 +57,8 @@ def test_search_memories_returns_ranked_rows(client, monkeypatch):
         assert threshold == 0.0
         assert search_mode == "hybrid"
         assert rerank_enabled is True
+        assert memory_weight == 1.0
+        assert chunk_weight == 0.9
         return fake_rows
 
     monkeypatch.setattr(routes, "search_memories", _fake_search)
