@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "memorizer-cli"
+version = "0.1.0"
+description = "CLI client for memorizer memory API (no MCP)"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "newuni" }]
+dependencies = []
+
+[project.scripts]
+memorizer = "memorizer_cli.cli:main"
+
+[tool.setuptools]
+packages = ["memorizer_cli"]

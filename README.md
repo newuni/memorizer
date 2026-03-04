@@ -34,9 +34,28 @@ Docs: `http://localhost:8000/docs`
 This repo includes a dedicated skill and CLI so agents can use memorizer directly over HTTP.
 
 - Skill: `skills/memorizer-agent/SKILL.md`
-- CLI: `scripts/memorizer`
+- CLI (repo-local): `scripts/memorizer`
+- CLI (global with pipx): `memorizer`
 
-Quick usage:
+### Install with pipx
+
+From local clone:
+```bash
+cd /path/to/memorizer
+pipx install .
+```
+
+From GitHub:
+```bash
+pipx install git+https://github.com/newuni/memorizer.git
+```
+
+Upgrade later:
+```bash
+pipx upgrade memorizer-cli
+```
+
+### Quick usage
 
 ```bash
 # optional env vars
@@ -44,14 +63,14 @@ export MEMORIZER_URL=http://localhost:8000
 export MEMORIZER_API_KEY=dev-secret-change-me
 
 # save memory
-scripts/memorizer add "User prefers concise Spanish replies" --meta '{"type":"preference"}'
+memorizer add "User prefers concise Spanish replies" --meta '{"type":"preference"}'
 
 # retrieve context for current prompt
-scripts/memorizer context "¿Cómo lo desplegamos?" --top-k 5
+memorizer context "¿Cómo lo desplegamos?" --top-k 5
 
 # create/revoke api keys
-scripts/memorizer keys-create agent-prod
-scripts/memorizer keys-revoke <key_id>
+memorizer keys-create agent-prod
+memorizer keys-revoke <key_id>
 ```
 
 ## Embeddings providers
