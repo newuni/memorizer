@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-03-04
+### Added
+- Advanced search API capabilities: `search_mode`, `threshold`, metadata filters, rerank toggle.
+- Hybrid retrieval from both `memories` and `document_chunks`.
+- Documents ingestion pipeline (`documents`, `document_chunks`) with async processing tasks.
+- User profile endpoint (`/api/v1/profile`) exposing static + dynamic summaries (+ optional query results).
+- Connectors foundation (`github`, `web_crawler`) and sync task orchestration.
+- Lightweight SDK stubs for Python and JavaScript under `sdk/`.
+- Extended automated tests for advanced routes and memory filtering behavior.
+
 ## [0.1.2] - 2026-03-04
 ### Added
 - Public project files: `LICENSE`, `SECURITY.md`, `CONTRIBUTING.md`.
