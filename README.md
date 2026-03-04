@@ -41,10 +41,12 @@ Docs: `http://localhost:8000/docs`
 
 ## Documentation
 - Main docs index: `docs/README.md`
+- 10-min onboarding: `docs/getting-started-10min.md`
 - API reference: `docs/api-reference.md`
 - API examples: `docs/api-examples.md`
 - Architecture + diagrams: `docs/architecture.md`, `docs/architecture-diagrams.md`
 - Production deploy (Docker + Caddy): `docs/production-deploy.md`
+- Adoption docs: `docs/adoption-checklist.md`, `docs/recipes-by-role.md`, `docs/migration-from-mem0-zep.md`
 - Concepts + cookbooks: `docs/concepts/*`, `docs/cookbook/*`
 - LLM-friendly docs: `docs/llms.txt`, `docs/llms-full.txt`
 
