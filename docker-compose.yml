@@ -16,6 +16,12 @@ services:
       timeout: 3s
       retries: 20
 
+  redis:
+    image: redis:7-alpine
+    container_name: memorizer-redis
+    ports:
+      - "6379:6379"
+
   api:
     build: .
     container_name: memorizer-api
@@ -28,13 +34,43 @@ services:
       GEMINI_EMBED_MODEL: ${GEMINI_EMBED_MODEL:-models/text-embedding-004}
       BOOTSTRAP_TENANT_ID: ${BOOTSTRAP_TENANT_ID:-default}
       BOOTSTRAP_API_KEY: ${BOOTSTRAP_API_KEY:-dev-secret-change-me}
+      RERANK_ENABLED: ${RERANK_ENABLED:-true}
+      RERANK_MODEL: ${RERANK_MODEL:-cross-encoder/ms-marco-MiniLM-L-6-v2}
+      RERANK_CANDIDATE_POOL: ${RERANK_CANDIDATE_POOL:-25}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       APP_ENV: dev
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     command: ["bash", "-lc", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"]
+    volumes:
+      - ./:/app
+
+  worker:
+    build: .
+    container_name: memorizer-worker
+    environment:
+      DATABASE_URL: postgresql+psycopg://memorizer:memorizer@db:5432/memorizer
+      EMBEDDING_DIM: 384
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-local}
+      LOCAL_EMBED_MODEL: ${LOCAL_EMBED_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_EMBED_MODEL: ${GEMINI_EMBED_MODEL:-models/text-embedding-004}
+      RERANK_ENABLED: ${RERANK_ENABLED:-true}
+      RERANK_MODEL: ${RERANK_MODEL:-cross-encoder/ms-marco-MiniLM-L-6-v2}
+      RERANK_CANDIDATE_POOL: ${RERANK_CANDIDATE_POOL:-25}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      APP_ENV: dev
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: ["bash", "-lc", "alembic upgrade head && celery -A app.worker.celery_app worker --loglevel=INFO"]
     volumes:
       - ./:/app
 

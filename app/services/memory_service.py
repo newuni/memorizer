@@ -1,9 +1,11 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.models.memory import Memory
 from app.schemas.memory import MemoryCreate
 from app.services.embedder import embedder
+from app.services.reranker import rerank
 
 
 def create_memory(db: Session, tenant_id: str, payload: MemoryCreate) -> Memory:
@@ -52,6 +54,7 @@ def delete_memory(db: Session, tenant_id: str, memory_id: str) -> bool:
 
 def search_memories(db: Session, tenant_id: str, namespace: str, query: str, top_k: int = 5):
     qvec = embedder.embed(query)
+    candidate_pool = max(top_k, settings.rerank_candidate_pool)
     sql = text(
         """
         SELECT id, content, meta, 1 - (embedding <=> CAST(:qvec AS vector)) AS score
@@ -61,10 +64,14 @@ def search_memories(db: Session, tenant_id: str, namespace: str, query: str, top
         LIMIT :top_k
         """
     )
-    rows = db.execute(sql, {
-        "qvec": str(qvec),
-        "tenant_id": tenant_id,
-        "namespace": namespace,
-        "top_k": top_k,
-    }).mappings().all()
-    return rows
+    rows = db.execute(
+        sql,
+        {
+            "qvec": str(qvec),
+            "tenant_id": tenant_id,
+            "namespace": namespace,
+            "top_k": candidate_pool,
+        },
+    ).mappings().all()
+    reranked = rerank(query=query, rows=[dict(r) for r in rows], top_k=top_k)
+    return reranked

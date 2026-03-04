@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.db.session import SessionLocal
 from app.services.api_key_service import bootstrap_api_key
 
-app = FastAPI(title="memorizer", version="0.2.0")
+app = FastAPI(title="memorizer", version="0.3.0")
 
 
 @app.on_event("startup")

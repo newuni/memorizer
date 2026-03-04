@@ -5,6 +5,7 @@ from alembic import context
 from app.db.base import Base
 from app.models.memory import Memory
 from app.models.api_key import ApiKey
+from app.models.ingestion_job import IngestionJob
 from app.core.config import settings
 
 config = context.config

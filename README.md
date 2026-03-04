@@ -5,31 +5,32 @@
 ## Tech stack
 - FastAPI
 - PostgreSQL + pgvector
+- Redis + Celery workers
 - SQLAlchemy 2.x + Alembic
 - Docker Compose
 
-## MVP features
+## Features (v0.3-dev)
 - API key auth + tenant isolation (`X-API-Key`)
 - Add one memory (`POST /api/v1/memories`)
-- Add many memories (`POST /api/v1/memories/batch`)
-- Search memories semantically (`GET /api/v1/memories/search`)
+- Add many memories sync (`POST /api/v1/memories/batch`)
+- Add many memories async (`POST /api/v1/memories/batch/async`)
+- Track ingestion jobs (`GET /api/v1/jobs/{job_id}`)
+- Semantic search with optional rerank (`GET /api/v1/memories/search`)
 - Build LLM context (`POST /api/v1/context`)
-- Delete memory (`DELETE /api/v1/memories/{id}`)
+- API key management (list/create/revoke)
 - Health check (`GET /health`)
 
 ## Quick start
 
 ```bash
+cp .env.example .env
 docker compose up --build
 ```
 
-API: `http://localhost:8000`
+API: `http://localhost:8000`  
 Docs: `http://localhost:8000/docs`
 
-## Environment
-Copy `.env.example` to `.env` if needed.
-
-### Embeddings providers
+## Embeddings providers
 By default, memorizer uses a **local CPU model**:
 
 ```env
@@ -37,7 +38,7 @@ EMBEDDING_PROVIDER=local
 LOCAL_EMBED_MODEL=sentence-transformers/all-MiniLM-L6-v2
 ```
 
-To switch to **Gemini embeddings** at any time, set:
+To switch to **Gemini embeddings** at any time:
 
 ```env
 EMBEDDING_PROVIDER=gemini
@@ -45,10 +46,19 @@ GEMINI_API_KEY=your_key_here
 GEMINI_EMBED_MODEL=models/text-embedding-004
 ```
 
-> Keep `EMBEDDING_DIM=384` unless you also migrate the DB vector column.
+> Keep `EMBEDDING_DIM=384` unless you migrate the DB vector column.
 
-### API key bootstrap (dev)
-On startup, the API creates/ensures one bootstrap key from env:
+## Reranking
+Optional cross-encoder rerank (CPU):
+
+```env
+RERANK_ENABLED=true
+RERANK_MODEL=cross-encoder/ms-marco-MiniLM-L-6-v2
+RERANK_CANDIDATE_POOL=25
+```
+
+## Auth bootstrap (dev)
+On startup, the API creates/ensures a bootstrap API key:
 
 ```env
 BOOTSTRAP_TENANT_ID=default
@@ -64,8 +74,36 @@ curl -H "X-API-Key: dev-secret-change-me" \
   http://localhost:8000/api/v1/memories
 ```
 
-Create extra keys manually:
+## API keys management
+List keys:
 
 ```bash
-docker compose exec api python scripts/create_api_key.py
+curl -H "X-API-Key: dev-secret-change-me" http://localhost:8000/api/v1/api-keys
+```
+
+Create key:
+
+```bash
+curl -X POST -H "X-API-Key: dev-secret-change-me" -H "Content-Type: application/json" \
+  -d '{"name":"agent-prod"}' http://localhost:8000/api/v1/api-keys
+```
+
+Revoke key:
+
+```bash
+curl -X DELETE -H "X-API-Key: dev-secret-change-me" \
+  http://localhost:8000/api/v1/api-keys/<key_id>
+```
+
+## Async batch ingestion
+```bash
+curl -X POST -H "X-API-Key: dev-secret-change-me" -H "Content-Type: application/json" \
+  -d '{"items":[{"namespace":"default","content":"A"},{"namespace":"default","content":"B"}]}' \
+  http://localhost:8000/api/v1/memories/batch/async
+```
+
+Then poll job status:
+
+```bash
+curl -H "X-API-Key: dev-secret-change-me" http://localhost:8000/api/v1/jobs/<job_id>
 ```

@@ -1,48 +1,55 @@
-# Memorizer Blueprint (v0)
+# Memorizer Blueprint (v0.3-dev)
 
 ## 1. Objective
-Build a memory API for agents with multi-tenant isolation, semantic retrieval, and prompt-ready context assembly.
+Memory API for AI agents with multi-tenant isolation, semantic retrieval, reranking, and sync/async ingestion.
 
 ## 2. Architecture
 - **API layer**: FastAPI
-- **Storage layer**:
-  - PostgreSQL tables for metadata and governance
-  - pgvector for embeddings (single-table strategy in MVP)
-- **Embedding provider abstraction**:
-  - `LocalCPUEmbedder` (SentenceTransformers on CPU)
-  - `GeminiEmbedder` configurable via `.env`
-  - provider switch with `EMBEDDING_PROVIDER=local|gemini`
+- **Storage**:
+  - PostgreSQL metadata + governance tables
+  - pgvector in `memories.embedding`
+- **Queue/Workers**:
+  - Redis as broker/backend
+  - Celery workers for async batch ingestion
+- **Embeddings abstraction**:
+  - `LocalCPUEmbedder` (SentenceTransformers)
+  - `GeminiEmbedder` switchable from `.env`
 
-## 3. Domain model (MVP)
+## 3. Domain model
 - `memories`
-  - `id` (UUID)
-  - `tenant_id` (TEXT)
-  - `namespace` (TEXT)
-  - `content` (TEXT)
-  - `metadata` (JSONB)
-  - `embedding` (VECTOR(384))
-  - `created_at` / `updated_at`
+  - `id`, `tenant_id`, `namespace`, `content`, `meta`, `embedding`, timestamps
+- `api_keys`
+  - `id`, `tenant_id`, `name`, `key_hash`, `is_active`, `created_at`
+- `ingestion_jobs`
+  - `id`, `tenant_id`, `status`, `total_items`, `processed_items`, `error`, timestamps
 
 ## 4. Retrieval strategy
-- Cosine similarity search (`embedding <=> query_embedding`)
-- Filter by tenant + namespace
-- Order by similarity and recency tie-break
+1. Vector similarity search in pgvector (`embedding <=> query_embedding`)
+2. Candidate pool configurable (`RERANK_CANDIDATE_POOL`)
+3. Optional cross-encoder rerank (`RERANK_ENABLED=true`)
+4. Final top-K returned to clients and `/context`
 
-## 5. API contract (v0.2)
+## 5. API contract
 - `POST /api/v1/memories`
 - `POST /api/v1/memories/batch`
+- `POST /api/v1/memories/batch/async`
+- `GET /api/v1/jobs/{job_id}`
 - `GET /api/v1/memories/search`
 - `POST /api/v1/context`
 - `DELETE /api/v1/memories/{memory_id}`
+- `GET /api/v1/api-keys`
+- `POST /api/v1/api-keys`
+- `DELETE /api/v1/api-keys/{key_id}`
 - `GET /health`
 
 ## 6. Security
-- Tenant isolation enforced at query layer (v0.2)
-- API key auth via `X-API-Key` (v0.2)
+- Mandatory `X-API-Key`
+- Key hashed at rest (`sha256`)
+- Tenant isolation enforced in every query
 - Bootstrap dev key from env for local onboarding
-- Audit logging planned in v0.3
 
 ## 7. Roadmap
-- v0.1: core CRUD + semantic search + context endpoint
-- v0.2: API keys + batch ingest + pluggable embeddings (local/gemini)
-- v0.3: rerank, async workers, connectors, memory compaction
+- **v0.3** (current): API keys mgmt, async ingestion, rerank, provider switching
+- **v0.4**: HNSW/IVFFlat indexes tuning + metadata filters
+- **v0.5**: connectors (web/slack/notion), fact extraction, memory compaction
+- **v0.6**: audit logs, quotas/rate limits, RBAC
