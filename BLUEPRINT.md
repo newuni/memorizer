@@ -9,8 +9,9 @@ Build a memory API for agents with multi-tenant isolation, semantic retrieval, a
   - PostgreSQL tables for metadata and governance
   - pgvector for embeddings (single-table strategy in MVP)
 - **Embedding provider abstraction**:
-  - `DummyEmbedder` for local/dev
-  - pluggable OpenAI/local model later
+  - `LocalCPUEmbedder` (SentenceTransformers on CPU)
+  - `GeminiEmbedder` configurable via `.env`
+  - provider switch with `EMBEDDING_PROVIDER=local|gemini`
 
 ## 3. Domain model (MVP)
 - `memories`

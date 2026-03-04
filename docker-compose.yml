@@ -22,6 +22,10 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://memorizer:memorizer@db:5432/memorizer
       EMBEDDING_DIM: 384
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-local}
+      LOCAL_EMBED_MODEL: ${LOCAL_EMBED_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_EMBED_MODEL: ${GEMINI_EMBED_MODEL:-models/text-embedding-004}
       APP_ENV: dev
     ports:
       - "8000:8000"
