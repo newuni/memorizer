@@ -118,7 +118,7 @@ To switch to **Gemini embeddings** at any time:
 ```env
 EMBEDDING_PROVIDER=gemini
 GEMINI_API_KEY=your_key_here
-GEMINI_EMBED_MODEL=models/text-embedding-004
+GEMINI_EMBED_MODEL=models/gemini-embedding-001
 ```
 
 > Keep `EMBEDDING_DIM=384` unless you migrate the DB vector column.

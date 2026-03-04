@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     embedding_provider: str = "local"  # local | gemini
     local_embed_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     gemini_api_key: str = ""
-    gemini_embed_model: str = "models/text-embedding-004"
+    gemini_embed_model: str = "models/gemini-embedding-001"
     bootstrap_api_key: str = "dev-secret-change-me"
     bootstrap_tenant_id: str = "default"
     bootstrap_admin_token: str = "dev-admin-owner-token"
