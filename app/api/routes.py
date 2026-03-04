@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -9,6 +11,8 @@ from app.schemas.api_key import (
     ApiKeyOut,
     ApiKeyRevokeResponse,
 )
+from app.schemas.connector import ConnectorCreate, ConnectorOut, ConnectorSyncResponse
+from app.schemas.document import DocumentCreate, DocumentListResponse, DocumentOut, DocumentProcessResponse
 from app.schemas.job import JobOut
 from app.schemas.memory import (
     ContextRequest,
@@ -18,7 +22,10 @@ from app.schemas.memory import (
     MemoryOut,
     SearchResult,
 )
+from app.schemas.profile import UserProfileResponse
 from app.services.api_key_service import create_api_key, list_api_keys, revoke_api_key
+from app.services.connector_service import create_connector, list_connectors
+from app.services.document_service import create_document, delete_document, get_document, list_documents
 from app.services.ingestion_service import create_job, get_job
 from app.services.memory_service import (
     create_memories_batch,
@@ -26,7 +33,8 @@ from app.services.memory_service import (
     delete_memory,
     search_memories,
 )
-from app.tasks import ingest_batch_task
+from app.services.profile_service import build_user_profile
+from app.tasks import ingest_batch_task, process_document_task, sync_connector_task
 
 router = APIRouter(prefix="/api/v1", tags=["memorizer"])
 
@@ -75,10 +83,25 @@ def search(
     namespace: str = "default",
     q: str = "",
     top_k: int = 5,
+    threshold: float = 0.0,
+    search_mode: str = "hybrid",
+    rerank: bool = True,
+    filters: str | None = None,
     db: Session = Depends(get_db),
     auth: AuthContext = Depends(get_auth_context),
 ):
-    rows = search_memories(db, tenant_id=auth.tenant_id, namespace=namespace, query=q, top_k=top_k)
+    parsed_filters = json.loads(filters) if filters else None
+    rows = search_memories(
+        db,
+        tenant_id=auth.tenant_id,
+        namespace=namespace,
+        query=q,
+        top_k=top_k,
+        threshold=threshold,
+        search_mode=search_mode,
+        rerank_enabled=rerank,
+        filters=parsed_filters,
+    )
     return [SearchResult(**r) for r in rows]
 
 
@@ -94,10 +117,35 @@ def context(
         namespace=payload.namespace,
         query=payload.prompt,
         top_k=payload.top_k,
+        threshold=payload.threshold,
+        search_mode=payload.search_mode,
+        rerank_enabled=payload.rerank,
     )
     items = [SearchResult(**r) for r in rows]
     context_text = "\n\n".join([f"- {x.content}" for x in items])
     return ContextResponse(context=context_text, items=items)
+
+
+@router.get("/profile", response_model=UserProfileResponse)
+def profile(
+    namespace: str = "default",
+    q: str | None = None,
+    top_k: int = 5,
+    db: Session = Depends(get_db),
+    auth: AuthContext = Depends(get_auth_context),
+):
+    static, dynamic = build_user_profile(db, tenant_id=auth.tenant_id, namespace=namespace)
+    if q:
+        rows = search_memories(
+            db,
+            tenant_id=auth.tenant_id,
+            namespace=namespace,
+            query=q,
+            top_k=top_k,
+            search_mode="hybrid",
+        )
+        return UserProfileResponse(static=static, dynamic=dynamic, search_results=[SearchResult(**r) for r in rows])
+    return UserProfileResponse(static=static, dynamic=dynamic, search_results=None)
 
 
 @router.delete("/memories/{memory_id}")
@@ -106,6 +154,62 @@ def remove(memory_id: str, db: Session = Depends(get_db), auth: AuthContext = De
     if not ok:
         raise HTTPException(status_code=404, detail="Memory not found")
     return {"deleted": True}
+
+
+@router.post("/documents", response_model=DocumentOut)
+def post_document(payload: DocumentCreate, db: Session = Depends(get_db), auth: AuthContext = Depends(get_auth_context)):
+    doc = create_document(db, tenant_id=auth.tenant_id, payload=payload)
+    process_document_task.delay(str(doc.id))
+    return DocumentOut.model_validate(doc, from_attributes=True)
+
+
+@router.get("/documents", response_model=DocumentListResponse)
+def get_documents(namespace: str = "default", db: Session = Depends(get_db), auth: AuthContext = Depends(get_auth_context)):
+    docs = list_documents(db, tenant_id=auth.tenant_id, namespace=namespace)
+    return DocumentListResponse(items=[DocumentOut.model_validate(d, from_attributes=True) for d in docs])
+
+
+@router.get("/documents/{doc_id}", response_model=DocumentOut)
+def get_document_by_id(doc_id: str, db: Session = Depends(get_db), auth: AuthContext = Depends(get_auth_context)):
+    doc = get_document(db, tenant_id=auth.tenant_id, doc_id=doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return DocumentOut.model_validate(doc, from_attributes=True)
+
+
+@router.post("/documents/{doc_id}/process", response_model=DocumentProcessResponse)
+def process_document_endpoint(doc_id: str, db: Session = Depends(get_db), auth: AuthContext = Depends(get_auth_context)):
+    doc = get_document(db, tenant_id=auth.tenant_id, doc_id=doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    process_document_task.delay(doc_id)
+    return DocumentProcessResponse(queued=True, document_id=doc.id)
+
+
+@router.delete("/documents/{doc_id}")
+def delete_document_endpoint(doc_id: str, db: Session = Depends(get_db), auth: AuthContext = Depends(get_auth_context)):
+    ok = delete_document(db, tenant_id=auth.tenant_id, doc_id=doc_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return {"deleted": True}
+
+
+@router.post("/connectors", response_model=ConnectorOut)
+def post_connector(payload: ConnectorCreate, db: Session = Depends(get_db), auth: AuthContext = Depends(get_auth_context)):
+    c = create_connector(db, tenant_id=auth.tenant_id, payload=payload)
+    return ConnectorOut.model_validate(c, from_attributes=True)
+
+
+@router.get("/connectors", response_model=list[ConnectorOut])
+def get_connectors(namespace: str = "default", db: Session = Depends(get_db), auth: AuthContext = Depends(get_auth_context)):
+    rows = list_connectors(db, tenant_id=auth.tenant_id, namespace=namespace)
+    return [ConnectorOut.model_validate(c, from_attributes=True) for c in rows]
+
+
+@router.post("/connectors/{connector_id}/sync", response_model=ConnectorSyncResponse)
+def sync_connector(connector_id: str, db: Session = Depends(get_db), auth: AuthContext = Depends(get_auth_context)):
+    task = sync_connector_task.delay(connector_id, auth.tenant_id)
+    return ConnectorSyncResponse(queued_documents=int(task.id is not None))
 
 
 @router.get("/api-keys", response_model=list[ApiKeyOut])

@@ -10,6 +10,8 @@ celery_app = Celery(
 
 celery_app.conf.task_routes = {
     "app.tasks.ingest_batch_task": {"queue": "ingestion"},
+    "app.tasks.process_document_task": {"queue": "ingestion"},
+    "app.tasks.sync_connector_task": {"queue": "ingestion"},
 }
 
 celery_app.autodiscover_tasks(["app.tasks"])

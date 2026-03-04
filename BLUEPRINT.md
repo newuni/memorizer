@@ -1,4 +1,4 @@
-# Memorizer Blueprint (v0.3-dev)
+# Memorizer Blueprint (v0.4-dev)
 
 ## 1. Objective
 Memory API for AI agents with multi-tenant isolation, semantic retrieval, reranking, and sync/async ingestion.

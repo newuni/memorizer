@@ -26,12 +26,17 @@ class SearchResult(BaseModel):
     content: str
     meta: dict[str, Any]
     score: float
+    source: str = "memory"
+    rerank_score: float | None = None
 
 
 class ContextRequest(BaseModel):
     namespace: str = "default"
     prompt: str
     top_k: int = 5
+    threshold: float = 0.0
+    search_mode: str = "hybrid"
+    rerank: bool = True
 
 
 class ContextResponse(BaseModel):

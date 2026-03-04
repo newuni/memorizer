@@ -13,14 +13,17 @@
 - SQLAlchemy 2.x + Alembic
 - Docker Compose
 
-## Features (v0.3-dev)
+## Features (v0.4-dev)
 - API key auth + tenant isolation (`X-API-Key`)
 - Add one memory (`POST /api/v1/memories`)
 - Add many memories sync (`POST /api/v1/memories/batch`)
 - Add many memories async (`POST /api/v1/memories/batch/async`)
 - Track ingestion jobs (`GET /api/v1/jobs/{job_id}`)
-- Semantic search with optional rerank (`GET /api/v1/memories/search`)
+- Advanced search: hybrid mode, threshold, filters, rerank toggle (`GET /api/v1/memories/search`)
 - Build LLM context (`POST /api/v1/context`)
+- User profile endpoint (`GET /api/v1/profile`)
+- Documents pipeline (`/api/v1/documents*`) with async chunk processing
+- Connectors (github/web_crawler) (`/api/v1/connectors*`)
 - API key management (list/create/revoke)
 - Health check (`GET /health`)
 
