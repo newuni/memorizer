@@ -11,6 +11,7 @@ Welcome to the memorizer documentation.
 - [API Examples](./api-examples.md)
 - [OpenAPI](./openapi.md)
 - [Operations](./operations.md)
+- [Admin Runbook](./runbook-admin.md)
 - [Production Deploy (Docker + Caddy)](./production-deploy.md)
 - [Security](./security.md)
 - [Troubleshooting](./troubleshooting.md)

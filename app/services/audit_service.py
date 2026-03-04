@@ -22,7 +22,7 @@ def log_audit(
     resource_id: str | None = None,
     details: dict | None = None,
 ) -> None:
-    if action not in SENSITIVE_ACTIONS:
+    if action not in SENSITIVE_ACTIONS and not action.startswith("admin."):
         return
     row = AuditLog(
         tenant_id=tenant_id,

@@ -3,12 +3,17 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 from app.db.base import Base
-from app.models.memory import Memory
-from app.models.api_key import ApiKey
-from app.models.connector import Connector
-from app.models.document import Document, DocumentChunk
-from app.models.ingestion_job import IngestionJob
-from app.models.audit_log import AuditLog
+from app.models.memory import Memory  # noqa: F401
+from app.models.api_key import ApiKey  # noqa: F401
+from app.models.connector import Connector  # noqa: F401
+from app.models.document import Document, DocumentChunk  # noqa: F401
+from app.models.ingestion_job import IngestionJob  # noqa: F401
+from app.models.audit_log import AuditLog  # noqa: F401
+from app.models.admin_token import AdminToken  # noqa: F401
+from app.models.event_log import EventLog  # noqa: F401
+from app.models.governance_task import GovernanceTask  # noqa: F401
+from app.models.tenant import Tenant  # noqa: F401
+from app.models.tenant_namespace import TenantNamespace  # noqa: F401
 from app.core.config import settings
 
 config = context.config

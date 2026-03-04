@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-03-04
+### Added
+- Separate admin backend/auth path with `X-Admin-Token`, role-based access (`owner`/`admin`/`viewer`), scoped tenant defaults, and dev bootstrap admin token.
+- Full `/api/v1/admin` surface for tenant + namespace lifecycle, admin API-key lifecycle/quotas, job/audit views, queue health, and event feed.
+- Governance controls for tenant export (paged + streaming NDJSON), tenant forget/hard-delete workflows with dry-run mode, and retention policy update/enforcement task.
+- Admin persistence models and migration (`0006_admin_iteration`): `tenants`, `tenant_namespaces`, `admin_tokens`, `event_logs`, `governance_tasks`.
+- Expanded automated tests for admin auth and major admin routes.
+
+### Changed
+- Kept `/api/v1` user routes backward compatible while introducing admin-only endpoints.
+
 ## [0.4.0] - 2026-03-04
 ### Added
 - Operational stability controls: API-key rate limiting + daily quotas, `/metrics` endpoint, Celery retries/backoff, and audit logging for sensitive operations.

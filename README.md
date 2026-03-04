@@ -13,8 +13,9 @@
 - SQLAlchemy 2.x + Alembic
 - Docker Compose
 
-## Features (v0.4-dev)
+## Features (v0.5-dev)
 - API key auth + tenant isolation (`X-API-Key`)
+- Dedicated admin auth (`X-Admin-Token`) with roles (`owner`, `admin`, `viewer`) and tenant-scoped defaults
 - Add one memory (`POST /api/v1/memories`)
 - Add many memories sync (`POST /api/v1/memories/batch`)
 - Add many memories async (`POST /api/v1/memories/batch/async`)
@@ -27,6 +28,7 @@
 - Documents pipeline (`/api/v1/documents*`) with async chunk processing
 - Connectors (github/web_crawler) (`/api/v1/connectors*`)
 - API key management (list/create/revoke)
+- Full admin backend under `/api/v1/admin` for tenants, namespaces, API-key quotas/lifecycle, jobs, audit logs, queue health, governance exports, forget/delete workflows, retention policy/enforcement
 - Health check (`GET /health`)
 
 ## Public quickstart
@@ -46,6 +48,7 @@ Docs: `http://localhost:8000/docs`
 - 10-min onboarding: `docs/getting-started-10min.md`
 - API reference: `docs/api-reference.md`
 - API examples: `docs/api-examples.md`
+- Admin runbook: `docs/runbook-admin.md`
 - Architecture + diagrams: `docs/architecture.md`, `docs/architecture-diagrams.md`
 - Production deploy (Docker + Caddy): `docs/production-deploy.md`
 - Adoption docs: `docs/adoption-checklist.md`, `docs/recipes-by-role.md`, `docs/migration-from-mem0-zep.md`
@@ -135,6 +138,9 @@ On startup, the API creates/ensures a bootstrap API key:
 ```env
 BOOTSTRAP_TENANT_ID=default
 BOOTSTRAP_API_KEY=dev-secret-change-me
+BOOTSTRAP_ADMIN_TOKEN=dev-admin-owner-token
+BOOTSTRAP_ADMIN_ROLE=owner
+BOOTSTRAP_ADMIN_TENANT_ID=
 ```
 
 Use it in requests:
@@ -144,6 +150,20 @@ curl -H "X-API-Key: dev-secret-change-me" \
   -H "Content-Type: application/json" \
   -d '{"namespace":"default","content":"Unai likes OSS tools","meta":{"source":"chat"}}' \
   http://localhost:8000/api/v1/memories
+```
+
+Admin requests use a different header:
+
+```bash
+curl -H "X-Admin-Token: dev-admin-owner-token" \
+  http://localhost:8000/api/v1/admin/tenants
+```
+
+Scoped admin example (single tenant):
+
+```env
+BOOTSTRAP_ADMIN_ROLE=admin
+BOOTSTRAP_ADMIN_TENANT_ID=default
 ```
 
 ## API keys management

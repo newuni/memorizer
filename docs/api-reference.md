@@ -3,6 +3,7 @@
 Base path: `/api/v1`
 
 Auth header: `X-API-Key: <key>`
+Admin auth header: `X-Admin-Token: <token>` (for `/api/v1/admin/*`)
 
 ## Memories
 
@@ -64,3 +65,36 @@ Providers currently: `github`, `web_crawler`.
 ## Health
 
 - `GET /health`
+
+## Admin API (`/api/v1/admin`)
+
+### Tenants + Governance
+
+- `GET /tenants`
+- `POST /tenants` (`owner` role)
+- `PATCH /tenants/{tenant_id}`
+- `GET /tenants/{tenant_id}/export` (paged export)
+- `GET /tenants/{tenant_id}/export/stream` (NDJSON stream)
+- `POST /tenants/{tenant_id}/forget` (`dry_run` + `hard_delete`)
+- `PUT /tenants/{tenant_id}/retention`
+- `POST /governance/retention/enforce`
+
+### Namespaces
+
+- `GET /namespaces`
+- `POST /namespaces`
+- `PATCH /namespaces/{namespace_id}`
+
+### API Key lifecycle + quotas
+
+- `GET /api-keys`
+- `POST /api-keys`
+- `PATCH /api-keys/{key_id}`
+- `DELETE /api-keys/{key_id}`
+
+### Operations + Observability
+
+- `GET /jobs`
+- `GET /audit-logs`
+- `GET /observability/queue-health`
+- `GET /observability/events`
