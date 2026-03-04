@@ -2,9 +2,6 @@ from __future__ import annotations
 
 from typing import Protocol
 
-import google.generativeai as genai
-from sentence_transformers import SentenceTransformer
-
 from app.core.config import settings
 
 
@@ -14,6 +11,8 @@ class Embedder(Protocol):
 
 class LocalCPUEmbedder:
     def __init__(self, model_name: str):
+        from sentence_transformers import SentenceTransformer
+
         self.model = SentenceTransformer(model_name, device="cpu")
 
     def embed(self, text: str) -> list[float]:
@@ -28,13 +27,16 @@ class LocalCPUEmbedder:
 
 class GeminiEmbedder:
     def __init__(self, api_key: str, model_name: str):
+        import google.generativeai as genai
+
         if not api_key:
             raise ValueError("GEMINI_API_KEY is required when EMBEDDING_PROVIDER=gemini")
         genai.configure(api_key=api_key)
+        self.genai = genai
         self.model_name = model_name
 
     def embed(self, text: str) -> list[float]:
-        result = genai.embed_content(
+        result = self.genai.embed_content(
             model=self.model_name,
             content=text,
             task_type="RETRIEVAL_DOCUMENT",
@@ -48,13 +50,22 @@ class GeminiEmbedder:
         return emb
 
 
-def get_embedder() -> Embedder:
-    provider = settings.embedding_provider.lower().strip()
-    if provider == "local":
-        return LocalCPUEmbedder(settings.local_embed_model)
-    if provider == "gemini":
-        return GeminiEmbedder(settings.gemini_api_key, settings.gemini_embed_model)
-    raise ValueError("Invalid EMBEDDING_PROVIDER. Use 'local' or 'gemini'.")
+class _LazyEmbedder:
+    def __init__(self):
+        self._impl: Embedder | None = None
+
+    def _build(self) -> Embedder:
+        provider = settings.embedding_provider.lower().strip()
+        if provider == "local":
+            return LocalCPUEmbedder(settings.local_embed_model)
+        if provider == "gemini":
+            return GeminiEmbedder(settings.gemini_api_key, settings.gemini_embed_model)
+        raise ValueError("Invalid EMBEDDING_PROVIDER. Use 'local' or 'gemini'.")
+
+    def embed(self, text: str) -> list[float]:
+        if self._impl is None:
+            self._impl = self._build()
+        return self._impl.embed(text)
 
 
-embedder = get_embedder()
+embedder: Embedder = _LazyEmbedder()
