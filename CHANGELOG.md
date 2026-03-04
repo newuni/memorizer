@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2026-03-04
+### Added
+- Comprehensive `docs/` structure (quickstart, architecture, API reference, operations, security, troubleshooting).
+- Concepts and cookbook pages.
+- AI-friendly documentation files (`docs/llms.txt`, `docs/llms-full.txt`).
+
 ## [0.2.1] - 2026-03-04
 ### Added
 - Hardening pass for search filters (`string_contains`, `numeric`, `array_contains`, `negate`).
